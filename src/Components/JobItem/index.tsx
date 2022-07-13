@@ -8,7 +8,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 
 type JobItemProps = {
-    handleClose: React.Dispatch<React.SetStateAction<boolean>>;
+    handleClose?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function JobItem({handleClose} : JobItemProps) {
@@ -95,17 +95,31 @@ export default function JobItem({handleClose} : JobItemProps) {
                         alignItems: 'center',
                     }}>
                         <Typography>2 hours ago</Typography>
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            sx={{
-                                marginLeft: '12px',
-                                width: '110px',
-                                height: '36px',
-                                borderRadius: '8px',
-                            }}
-                            onClick={() => handleClose(true)}
-                        >Apply</Button>
+                        {
+                            handleClose && (<Button
+                                variant="contained"
+                                color="secondary"
+                                sx={{
+                                    marginLeft: '12px',
+                                    width: '110px',
+                                    height: '36px',
+                                    borderRadius: '8px',
+                                }}
+                                onClick={() => handleClose(true)}
+                            >Apply</Button>)
+                        }
+                        {
+                            !handleClose && (<Button
+                                variant="outlined"
+                                color="secondary"
+                                sx={{
+                                    marginLeft: '12px',
+                                    width: '110px',
+                                    height: '36px',
+                                    borderRadius: '8px',
+                                }}
+                            >Cancel</Button>)
+                        }
                     </Box>
                 </Box>
             </Box>

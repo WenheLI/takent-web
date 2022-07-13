@@ -5,6 +5,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 type SideBarProps = {
     setPage: React.Dispatch<React.SetStateAction<number>>,
@@ -72,13 +73,13 @@ export default function SideBar({ setPage, currPage } : SideBarProps) {
       >
           <Button style={{
               color: '#777777'
-          }} variant="text" startIcon={<HomeIcon />}>
-              Homepage
+          }} variant="text" startIcon={<SettingsIcon />}>
+              Settings
           </Button>
           <Button style={{
               color: '#777777'
-          }} variant="text" startIcon={<HomeIcon />}>
-              Homepage
+          }} variant="text" startIcon={<AccountCircleIcon />}>
+              Profile
           </Button>
 
       </Box>
