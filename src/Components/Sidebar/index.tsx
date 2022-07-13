@@ -2,13 +2,41 @@ import React from "react";
 import { useTheme } from "@emotion/react";
 import { Box, Button } from "@mui/material";
 import HomeIcon from '@mui/icons-material/Home';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 type SideBarProps = {
-    setPage: React.Dispatch<React.SetStateAction<number>>
+    setPage: React.Dispatch<React.SetStateAction<number>>,
+    currPage: number
 };
 
-export default function SideBar({ setPage } : SideBarProps) {
+export default function SideBar({ setPage, currPage } : SideBarProps) {
     const theme: any = useTheme();
+    const buttonData = [{
+        icon: <HomeIcon />,
+        text: 'Home',
+    }, {
+        icon: <DashboardIcon />,
+        text: 'Dashboard',
+    }, {
+        icon: <HourglassEmptyIcon />,
+        text: 'Applied',
+    }, {
+        icon: <AccountCircleIcon />,
+        text: 'Profile',
+    }];
+
+    const selectedButtonStyle = {
+        color: theme.palette.secondary.main,
+        marginTop: '24px'
+    };
+
+    const buttonStyle = {
+        color: '#777777',
+        marginTop: '24px'
+    };
 
     return <Box sx={{
         height: 'calc(100vh - 64px)',
@@ -26,34 +54,14 @@ export default function SideBar({ setPage } : SideBarProps) {
               flexDirection: 'column',
           }}
       >
-          <Button style={{
-              color: '#777777'
-          }} 
-          onClick={() => setPage(0)}
-          variant="text" startIcon={<HomeIcon />}>
-              Homepage
-          </Button>
-          <Button style={{
-              color: '#777777'
-          }} 
-          onClick={() => setPage(1)}
-          variant="text" startIcon={<HomeIcon />}>
-              Homepage
-          </Button>
-          <Button style={{
-              color: '#777777'
-          }} 
-          onClick={() => setPage(2)}
-          variant="text" startIcon={<HomeIcon />}>
-              Homepage
-          </Button>
-          <Button style={{
-              color: '#777777'
-          }} 
-          onClick={() => setPage(3)}
-          variant="text" startIcon={<HomeIcon />}>
-              Homepage
-          </Button>
+        {buttonData.map((button, index) => {
+            return <Button 
+                    key={index} 
+                    style={currPage === index ? selectedButtonStyle : buttonStyle}
+                    startIcon={button.icon}
+                    onClick={() => setPage(index)} 
+                > {button.text} </Button>
+        })}
       </Box>
 
       <Box
@@ -65,13 +73,13 @@ export default function SideBar({ setPage } : SideBarProps) {
       >
           <Button style={{
               color: '#777777'
-          }} variant="text" startIcon={<HomeIcon />}>
-              Homepage
+          }} variant="text" startIcon={<SettingsIcon />}>
+              Settings
           </Button>
           <Button style={{
               color: '#777777'
-          }} variant="text" startIcon={<HomeIcon />}>
-              Homepage
+          }} variant="text" startIcon={<AccountCircleIcon />}>
+              Profile
           </Button>
 
       </Box>
