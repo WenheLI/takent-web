@@ -6,6 +6,7 @@ import React from "react";
 import Appbar from "../../Components/Appbar";
 import SideBar from "../../Components/Sidebar";
 
+
 export default function Dashboard() {
   const [page, setPage] = React.useState(0);
 
@@ -23,5 +24,6 @@ export default function Dashboard() {
             {page}
         </Card>
       </Box>
+      
   </>
 }

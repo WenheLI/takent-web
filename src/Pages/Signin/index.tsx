@@ -1,16 +1,21 @@
 import * as React from 'react';
+import {Typography, InputAdornment, IconButton, FormControl, RadioGroup} from '@mui/material/';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { useFormControl } from '@mui/material/FormControl';
 import Checkbox from '@mui/material/Checkbox';
+import Radio from '@mui/material/Radio';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { fontSize } from '@mui/system';
+
 
 
 export default function SignInSide() {
@@ -18,92 +23,138 @@ export default function SignInSide() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
-      email: data.get('email'),
+      userid: data.get('userid'),
       password: data.get('password'),
     });
   };
 
+  const [checked, setChecked] = React.useState(false);
+
+  const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
+  
+
+  
+
   return (
       <Grid container component="main" sx={{ height: '100vh' }}>
         <CssBaseline />
-        <Grid
-          item
-          xs={false}
-          sm={4}
-          md={7}
-          sx={{
-            backgroundImage: 'url(https://source.unsplash.com/random)',
-            backgroundRepeat: 'no-repeat',
-            backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+        
+        <Grid item xs={12} sm={12} md={6} component={Paper} elevation={6} square>
+       
+      
+          <Box mt={5} ml={6}>
+          <Button variant="text" onClick={() => {
+              window.location.href="#"
+            }} startIcon={<ArrowBackIosIcon />} color="inherit" sx = {{fontSize: "medium", alignItems: "center"}}>
+            返回
+          </Button>
+        
+          </Box>    
+          
           <Box
             sx={{
               my: 8,
-              mx: 4,
+              mx: 10,
+              ml: 30,
               display: 'flex',
+              
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'flex-start',
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Sign in
+            
+            <Typography component="h1" sx={{fontWeight: "2000px", fontStyle: "Semibold", fontSize: "40px", lineHeight: "48px"}} >
+              手机号登陆
             </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          
+            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ my: 10 }}>
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
+                id="userid"
+                label="手机号"
+                name="userid"
+                color="secondary" 
                 autoFocus
+                sx={{my:3}}
               />
               <TextField
                 margin="normal"
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label="验证码"
+                color="secondary" 
                 type="password"
                 id="password"
-                autoComplete="current-password"
+                sx={{my:2}}
+                InputProps={{
+                  endAdornment:  <InputAdornment position="end">
+                  <Button variant="outlined"  color = {'inherit'} sx={{color: "#AAAAAA"}}>获取验证码</Button>
+                </InputAdornment>
+                }}
+            
               />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              />
-              <Button
+              
+              <Grid sx={{mt:10}}>
+               
+                <FormControlLabel
+                control={<Checkbox value="agree" checked={checked} onChange={handleCheckChange} color="default" />}
+                label = {<Typography>阅读并接受 <Link href="#" underline="hover" color="secondary">{"《用户协议》"}</Link> 和 <Link href="#" underline="hover" color="secondary">{"《隐私政策》"}</Link></Typography>}/> 
+              
+              </Grid>
+              
+              {checked && <Button
                 type="submit"
                 fullWidth
+                color="secondary"
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ mt: 3, mb: 2, fontSize: "medium", fontWeight:"200px"}}
               >
-                Sign In
-              </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
+                登陆
+              </Button>}
+
+              {!checked && <Button
+                type="submit"
+                fullWidth
+                disabled
+                
+                variant="contained"
+                sx={{ mt: 3, mb: 2, fontSize: "medium", fontWeight:"200px"}}
+              >
+                登陆
+              </Button>}
+              <Grid sx={{ my: 2 }}>
+                
+                  <Link href="#/signup" underline="hover" color="secondary" >
+                    {"立即注册"}
                   </Link>
-                </Grid>
-                <Grid item>
-                  <Link href="#/signup" variant="body2">
-                    {"Don't have an account? Sign Up"}
-                  </Link>
-                </Grid>
+                
               </Grid>
             </Box>
           </Box>
         </Grid>
+
+
+        
+        <Grid
+          item
+          xs={false}
+          sm={false}
+          md={6}
+          sx={{
+            backgroundImage: 'url("./moon.png")',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: 'white',
+            backgroundSize: 'fill',
+            backgroundPosition: 'right',
+            
+          }}/>
+            
+     
       </Grid>
   );
 }
