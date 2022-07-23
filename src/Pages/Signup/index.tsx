@@ -11,24 +11,79 @@ import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import FormHelperText from '@mui/material/FormHelperText';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { fontSize } from '@mui/system';
-import WorkIcon from '@mui/icons-material/Work';
-import PersonIcon from '@mui/icons-material/Person';
-
+import { useEffect,  useState } from "react"
 
 export default function SignUp() {
+  
+  const [role, setRole] = React.useState("applicant");
+  const [checked, setChecked] = React.useState(false);
+  const [next, setNext] = useState(false);
+  const [helperText, setHelperText] = useState('');
+  const [userid, setUserid] = useState('');
+  const [code, setCode] = useState('');
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      userid: data.get('userid'),
-      password: data.get('password'),
-    });
+    if(data.get('passwd') === "" || data.get('passwd') !== data.get('confirmPwd')){
+      setHelperText("Passwords do not match or are empty");
+      return
+    }else if(data.get('username')===""){
+      setHelperText("The user name is invalid");
+      return
+    }else{
+      setHelperText("");
+    }
+     //const param = new FormData(event.currentTarget);
+     var url;
+     if(role === "applicant"){
+       url = 'http://ec2-52-14-66-91.us-east-2.compute.amazonaws.com:8888/signupApp'
+     }else{
+       url = 'http://ec2-52-14-66-91.us-east-2.compute.amazonaws.com:8888/signupRec'
+     }
+     data.set('userid',userid)
+     try {
+       fetch(url, {
+         method: "POST",
+         body: data
+       }).then(res => res.json())
+       .then(
+         (result) => {
+           if(result.res === 0){
+            setHelperText("");
+            sessionStorage.setItem("token", result.token);
+            sessionStorage.setItem("userid", userid);
+            window.location.href="#"
+           }else{
+            setHelperText(result.msg);
+             
+           }
+         }
+         
+       )
+     } catch (error) {
+       console.log(error);
+     }
+   
+      
+    
   };
-  const [role, setRole] = React.useState("applicant");
-  const [checked, setChecked] = React.useState(false);
+
+  const handleNextChange = (event: React.FormEvent<HTMLFormElement>)=>{
+    event.preventDefault()
+    setUserid(event.currentTarget.userid.value)
+    setCode(event.currentTarget.password.value)
+    if(userid === ""){
+      setHelperText("The user ID is invalid");
+      return
+    }
+    setNext(!next)
+   
+  };
 
   const handleRoleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRole((event.target as HTMLInputElement).value);
@@ -38,9 +93,10 @@ export default function SignUp() {
     setChecked(event.target.checked);
   };
 
-  React.useEffect(() => {
-      console.log(role);
-  });
+  
+
+
+  
   
   return (
     <Grid container component="main" sx={{ height: '100vh' }}>
@@ -50,9 +106,9 @@ export default function SignUp() {
        
       
           <Box mt={5} ml={6}>
-          <Button variant="text" onClick={() => {
+          <Button variant="text" onClick={!next ? () => {
               window.location.href="#"
-            }} startIcon={<ArrowBackIosIcon />} color="inherit" sx = {{fontSize: "medium", alignItems: "center"}}>
+            } : ()=>{setNext(!next); setHelperText("");}} startIcon={<ArrowBackIosIcon />} color="inherit" sx = {{fontSize: "medium", alignItems: "center"}}>
             返回
           </Button>
         
@@ -68,32 +124,35 @@ export default function SignUp() {
               flexDirection: 'column',
               alignItems: 'flex-start',
             }}
-          >
+           >
             
             <Typography component="h1" sx={{fontWeight: "2000px", fontStyle: "Semibold", fontSize: "40px", lineHeight: "48px"}} >
-              手机号注册
+              {!next ? '手机号注册' : '完成昵称及密码设置'}
             </Typography>
             <Box mt={10} alignItems={'center'}>
-            <FormControl>
-            
-              <RadioGroup
-                row
-                aria-labelledby="role-select-group"
-                name="role-select"
-                value={role}
-                onChange={handleRoleChange} 
-                
-              > 
-            
-                <FormControlLabel  value="applicant" control={<Radio color="secondary" />} label={<Typography fontSize={17} > 我是求职者 </Typography>} />
-                <Box ml={10}>
-                    <FormControlLabel value="recruiter" control={<Radio color="secondary" />} label={<Typography fontSize={17}> 我是 HR </Typography>} />
-                </Box>
-              </RadioGroup>
-            </FormControl>
-          </Box>
+              <FormControl>
+              
+                <RadioGroup
+                  row
+                  aria-labelledby="role-select-group"
+                  name="role-select"
+                  value={role}
+                  onChange={handleRoleChange} 
+                  
+                > 
+              
+                  <FormControlLabel  value="applicant" control={<Radio color="secondary" />} label={<Typography fontSize={17} > 我是求职者 </Typography>} />
+                  <Box ml={10}>
+                      <FormControlLabel value="recruiter" control={<Radio color="secondary" />} label={<Typography fontSize={17}> 我是 HR </Typography>} />
+                  </Box>
+                </RadioGroup>
+              </FormControl>
+            </Box>
 
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ my: 3 }}>
+
+              {!next && 
+              <>
+              <Box component="form" noValidate onSubmit={handleNextChange} sx={{ my: 3 }}>
               <TextField
                 margin="normal"
                 required
@@ -104,7 +163,9 @@ export default function SignUp() {
                 color="secondary" 
                 autoFocus
                 sx={{my:3}}
+               
               />
+              
               <TextField
                 margin="normal"
                 required
@@ -122,23 +183,25 @@ export default function SignUp() {
                 }}
             
               />
-              
+              <FormHelperText>{helperText}</FormHelperText>
               <Grid sx={{mt:10}}>
                
                 <FormControlLabel
-                control={<Checkbox value="agree" color="default" />}
+                control={<Checkbox value="agree" checked={checked} onChange={handleCheckChange} color="default" />}
                 label = {<Typography>注册即同意 <Link href="#" underline="hover" color="secondary">{"《用户协议》"}</Link> 和 <Link href="#" underline="hover" color="secondary">{"《隐私政策》"}</Link></Typography>}/> 
               
               </Grid>
+              
               
               {checked && <Button
                 type="submit"
                 fullWidth
                 color="secondary"
                 variant="contained"
+                
                 sx={{ mt: 3, mb: 2, fontSize: "medium", fontWeight:"200px"}}
               >
-                注册
+                下一步
               </Button>}
 
               {!checked && <Button
@@ -149,10 +212,63 @@ export default function SignUp() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2, fontSize: "medium", fontWeight:"200px"}}
               >
-                注册
+                下一步
               </Button>}
+              </Box>
+            </>}
+
+            { next && 
+            <>
+            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ my: 3 }}>
+               <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="username"
+                label="用户昵称"
+                name="username"
+                color="secondary" 
+                autoFocus
+                sx={{my:3}}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="passwd"
+                label="密码设置"
+                name="passwd"
+                color="secondary" 
+               
+                sx={{my:3}}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="confirmPwd"
+                label="确认密码"
+                name="confirmPwd"
+                color="secondary" 
+            
+                sx={{my:3}}
+              />
+              <FormHelperText>{helperText}</FormHelperText>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="secondary"
+                sx={{ mt: 3, mb: 2, fontSize: "medium", fontWeight:"200px"}}
+              >
+                完成注册
+              </Button>
+              </Box>
+            </>
+
+            }
              
-            </Box>
+            
           </Box>
         </Grid>
 

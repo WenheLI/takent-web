@@ -15,20 +15,71 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { fontSize } from '@mui/system';
+import { useEffect,  useState } from "react"
+import { json } from 'stream/consumers';
+import FormHelperText from '@mui/material/FormHelperText';
 
 
 
 export default function SignInSide() {
+
+  const [checked, setChecked] = useState(false);
+  const [role, setRole] = useState("applicant");
+  const [mode, setMode] = useState(true);
+  const [helperText, setHelperText] = useState('');
+  
+
+  const handleRoleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRole((event.target as HTMLInputElement).value);
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      userid: data.get('userid'),
-      password: data.get('password'),
-    });
-  };
+    const userid = event.currentTarget.userid.value;
+    if(data.get('passwd') === ""){
+      setHelperText("The password is empty");
+      return
+    }else if(data.get('userid')===""){
+      setHelperText("The user ID is invalid");
+      return
+    }else{
+      setHelperText("");
+    }
+    var url;
+     if(role === "applicant"){
+       url = 'http://ec2-52-14-66-91.us-east-2.compute.amazonaws.com:8888/loginApp'
+     }else{
+       url = 'http://ec2-52-14-66-91.us-east-2.compute.amazonaws.com:8888/loginRec'
+     }
+  
 
-  const [checked, setChecked] = React.useState(false);
+    try {
+      fetch(url, {
+        method: "POST",
+        body: data
+      }).then(res => res.json())
+      .then(
+        (result) => {
+          if(result.res === 0){
+            setHelperText("");
+            
+            sessionStorage.setItem("token", result.token);
+            sessionStorage.setItem("userid", userid);
+            window.location.href="#"
+          }else{
+            setHelperText(result.msg)
+          }
+        }
+        
+      )
+    } catch (error) {
+      console.log(error);
+    }
+    
+  }
+
+  
 
   const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
@@ -66,10 +117,31 @@ export default function SignInSide() {
           >
             
             <Typography component="h1" sx={{fontWeight: "2000px", fontStyle: "Semibold", fontSize: "40px", lineHeight: "48px"}} >
-              手机号登陆
+              {mode ? "手机号登陆" : "用户名密码登陆"}
             </Typography>
-          
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ my: 10 }}>
+            
+            <Box mt={10} alignItems={'center'}>
+              <FormControl>
+              
+                <RadioGroup
+                  row
+                  aria-labelledby="role-select-group"
+                  name="role-select"
+                  value={role}
+                  onChange={handleRoleChange} 
+                  
+                > 
+              
+                  <FormControlLabel  value="applicant" control={<Radio color="secondary" />} label={<Typography fontSize={17} > 我是求职者 </Typography>} />
+                  <Box ml={10}>
+                      <FormControlLabel value="recruiter" control={<Radio color="secondary" />} label={<Typography fontSize={17}> 我是 HR </Typography>} />
+                  </Box>
+                </RadioGroup>
+              </FormControl>
+            </Box>
+            
+            {mode && <>
+              <Box component="form" noValidate onSubmit={handleSubmit} sx={{ my: 2 }}>
               <TextField
                 margin="normal"
                 required
@@ -85,11 +157,11 @@ export default function SignInSide() {
                 margin="normal"
                 required
                 fullWidth
-                name="password"
+                name="passwd"
                 label="验证码"
                 color="secondary" 
                 type="password"
-                id="password"
+                id="passwd"
                 sx={{my:2}}
                 InputProps={{
                   endAdornment:  <InputAdornment position="end">
@@ -98,7 +170,7 @@ export default function SignInSide() {
                 }}
             
               />
-              
+              <FormHelperText>{helperText}</FormHelperText>
               <Grid sx={{mt:10}}>
                
                 <FormControlLabel
@@ -127,14 +199,88 @@ export default function SignInSide() {
               >
                 登陆
               </Button>}
-              <Grid sx={{ my: 2 }}>
+              <Grid sx={{ my: 2}}>
                 
-                  <Link href="#/signup" underline="hover" color="secondary" >
+                  <Link onClick={()=>{setMode(!mode)}} underline="hover" color="secondary" >
+                    {"用户名密码登陆"}
+                  </Link>
+                  <Link href="#/signup" underline="hover" color="secondary" sx={{ mx: 2}}>
                     {"立即注册"}
                   </Link>
                 
               </Grid>
             </Box>
+            </>}
+
+
+            {!mode && <>
+              <Box component="form" noValidate onSubmit={handleSubmit} sx={{ my: 2 }} >
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="userid"
+                label="用户昵称"
+                name="userid"
+                color="secondary" 
+                autoFocus
+                sx={{my:3}}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="passwd"
+                label="密码"
+                name="passwd"
+                color="secondary" 
+                sx={{my:3}}
+              />
+              
+              
+             
+              <FormHelperText>{helperText}</FormHelperText>
+              <Grid sx={{mt:10}}>
+               
+                <FormControlLabel
+                control={<Checkbox value="agree" checked={checked} onChange={handleCheckChange} color="default" />}
+                label = {<Typography>阅读并接受 <Link href="#" underline="hover" color="secondary">{"《用户协议》"}</Link> 和 <Link href="#" underline="hover" color="secondary">{"《隐私政策》"}</Link></Typography>}/> 
+              
+              </Grid>
+              
+              {checked && <Button
+                type="submit"
+                fullWidth
+                color="secondary"
+                variant="contained"
+                sx={{ mt: 3, mb: 2, fontSize: "medium", fontWeight:"200px"}}
+              >
+                登陆
+              </Button>}
+
+              {!checked && <Button
+                type="submit"
+                fullWidth
+                disabled
+                
+                variant="contained"
+                sx={{ mt: 3, mb: 2, fontSize: "medium", fontWeight:"200px"}}
+              >
+                登陆
+              </Button>}
+              <Grid sx={{ my: 2}}>
+                
+                  <Link onClick={()=>{setMode(!mode)}} underline="hover" color="secondary" >
+                    {"手机号登陆"}
+                  </Link>
+                  <Link href="#/signup" underline="hover" color="secondary" sx={{ mx: 2}}>
+                    {"立即注册"}
+                  </Link>
+                
+              </Grid>
+            </Box>
+            </>}
+            
           </Box>
         </Grid>
 
